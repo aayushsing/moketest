@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BPSC Offline Mock Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  user-select:none;
+}
+body{
+  min-height:100vh;
+  font-family:Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top left,#2563eb,transparent 35%),
+    radial-gradient(circle at bottom right,#7e22ce,transparent 35%),
+    linear-gradient(135deg,#020617,#0f172a);
+  color:#fff;
+}
+.app{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.container{
+  width:100%;
+  max-width:1100px;
+  background:rgba(15,23,42,.86);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:26px;
+  padding:30px;
+  box-shadow:0 30px 90px rgba(0,0,0,.45);
+  backdrop-filter:blur(16px);
+}
+.hidden{display:none!important}
+.badge{
+  display:inline-block;
+  padding:8px 15px;
+  border-radius:30px;
+  background:linear-gradient(135deg,#38bdf8,#a78bfa);
+  color:#020617;
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:16px;
+}
+h1{
+  font-size:42px;
+  line-height:1.1;
+  margin-bottom:14px;
+}
+h1 span,h2 span{
+  background:linear-gradient(135deg,#60a5fa,#c084fc,#f0abfc);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+h2{font-size:28px;margin-bottom:14px}
+h3{font-size:19px;margin-bottom:10px;color:#dbeafe}
+p{
+  color:#cbd5e1;
+  line-height:1.6;
+  margin-bottom:10px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin:22px 0;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin:22px 0;
+}
+.card{
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:22px;
+  padding:22px;
+  box-shadow:0 18px 40px rgba(0,0,0,.25);
+}
+.card:hover{
+  transform:translateY(-5px);
+  transition:.25s;
+  box-shadow:0 25px 55px rgba(0,0,0,.35);
+}
+label{
+  display:block;
+  margin-bottom:7px;
+  color:#dbeafe;
+  font-weight:700;
+}
+input,select,textarea{
+  width:100%;
+  padding:13px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(2,6,23,.65);
+  color:#fff;
+  outline:none;
+  margin-bottom:14px;
+  user-select:text;
+}
+button{
+  border:0;
+  cursor:pointer;
+  padding:14px 22px;
+  border-radius:15px;
+  font-weight:900;
+  background:linear-gradient(135deg,#38bdf8,#a78bfa);
+  color:#020617;
+  box-shadow:0 14px 30px rgba(56,189,248,.25);
+}
+button:hover{
+  transform:translateY(-2px);
+}
+button.secondary{
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:none;
+}
+button.danger{
+  background:linear-gradient(135deg,#fb7185,#f97316);
+}
+button.success{
+  background:linear-gradient(135deg,#34d399,#22c55e);
+}
+.btnrow{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+.notice{
+  margin-top:14px;
+  background:rgba(251,191,36,.13);
+  border:1px solid rgba(251,191,36,.28);
+  color:#fde68a;
+  padding:14px;
+  border-radius:15px;
+  line-height:1.5;
+}
+.topbar{
+  display:grid;
+  grid-template-columns:1fr auto auto auto;
+  gap:12px;
+  align-items:center;
+  margin-bottom:20px;
+}
+.timer,.attempts,.camera{
+  padding:12px 15px;
+  border-radius:15px;
+  font-weight:900;
+  text-align:center;
+}
+.timer{
+  background:rgba(248,113,113,.14);
+  border:1px solid rgba(248,113,113,.28);
+  color:#fecaca;
+}
+.attempts{
+  background:rgba(34,197,94,.13);
+  border:1px solid rgba(34,197,94,.25);
+  color:#bbf7d0;
+}
+.camera{
+  background:rgba(59,130,246,.13);
+  border:1px solid rgba(59,130,246,.25);
+  color:#bfdbfe;
+}
+.progresswrap{
+  height:12px;
+  background:rgba(255,255,255,.1);
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:22px;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#38bdf8,#a78bfa,#f0abfc);
+}
+.examgrid{
+  display:grid;
+  grid-template-columns:1fr 250px;
+  gap:18px;
+}
+.questionbox{
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.045));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:24px;
+  padding:28px;
+}
+.qno{
+  color:#93c5fd;
+  font-weight:900;
+  margin-bottom:12px;
+}
+.qtext{
+  font-size:22px;
+  font-weight:900;
+  line-height:1.45;
+  margin-bottom:22px;
+}
+.options{
+  display:grid;
+  gap:13px;
+}
+.option{
+  display:flex;
+  gap:12px;
+  padding:16px;
+  border-radius:17px;
+  background:rgba(15,23,42,.72);
+  border:1px solid rgba(255,255,255,.13);
+  cursor:pointer;
+}
+.option:hover{
+  border-color:#60a5fa;
+}
+.option input{
+  width:auto;
+  margin-top:4px;
+}
+.option.selected{
+  border-color:#60a5fa;
+  background:rgba(37,99,235,.25);
+}
+video{
+  width:100%;
+  border-radius:15px;
+  background:#000;
+  transform:scaleX(-1);
+}
+.result{
+  text-align:center;
+  padding:30px 10px;
+}
+.scorecircle{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  margin:25px auto;
+  display:grid;
+  place-items:center;
+  background:conic-gradient(#38bdf8 var(--angle),rgba(255,255,255,.12) 0deg);
+}
+.scoreinner{
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#020617;
+  font-size:30px;
+  font-weight:900;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  margin:22px 0;
+}
+.stat{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:16px;
+}
+.stat b{
+  display:block;
+  font-size:24px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:18px;
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  color:#e5e7eb;
+  font-size:14px;
+  text-align:left;
+}
+th{
+  background:rgba(96,165,250,.18);
+}
+@media(max-width:900px){
+  .grid,.grid2,.examgrid,.stats,.topbar{
+    grid-template-columns:1fr;
+  }
+  h1{font-size:32px}
+}
+@media print{
+  body{display:none}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+<div class="container">
+
+<section id="loginScreen">
+  <div class="badge">BPSC Offline Mock Test</div>
+  <h1>BPSC <span>Mock Test</span></h1>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Student Login</h3>
+
+      <label>Student Name</label>
+      <input id="studentName" placeholder="Enter name">
+
+      <label>Mobile / Email</label>
+      <input id="studentId" placeholder="Enter mobile or email">
+
+      <div class="btnrow">
+        <button onclick="studentLogin()">Login</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Admin Login</h3>
+
+      <label>Password</label>
+      <input id="adminPassword" type="password" placeholder="Admin password">
+
+      <div class="btnrow">
+        <button class="secondary" onclick="adminLogin()">Admin Panel</button>
+      </div>
+
+      <p>Demo Password: <b>admin123</b></p>
+    </div>
+  </div>
+</section>
+
+<section id="homeScreen" class="hidden">
+  <div class="badge">Student Dashboard</div>
+  <h1>Welcome, <span id="studentWelcome"></span></h1>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Prelims</h3>
+      <p>Objective-type mock test.</p>
+    </div>
+
+    <div class="card">
+      <h3>No Skip</h3>
+      <p>Answer required before next question.</p>
+    </div>
+
+    <div class="card">
+      <h3>Attempts</h3>
+      <p>Only limited attempts allowed.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Payment Status</h3>
+      <p id="paymentStatus"></p>
+      <button class="success" onclick="demoPayment()">Pay / Unlock</button>
+    </div>
+
+    <div class="card">
+      <h3>Attempt Status</h3>
+      <p id="attemptStatus"></p>
+
+      <div class="btnrow">
+        <button onclick="startExam()">Start Test</button>
+        <button class="secondary" onclick="showHistory()">Results</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="btnrow">
+    <button class="secondary" onclick="logout()">Logout</button>
+  </div>
+</section>
+
+<section id="adminScreen" class="hidden">
+  <div class="badge">Admin Panel</div>
+  <h1>Admin <span>Controls</span></h1>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Upload Questions CSV</h3>
+
+      <label>Select CSV File</label>
+      <input type="file" id="csvFile" accept=".csv">
+
+      <div class="btnrow">
+        <button onclick="uploadCSV()">Upload</button>
+        <button class="secondary" onclick="downloadCSV()">Sample CSV</button>
+      </div>
+
+      <div class="notice">
+        CSV columns: question, optionA, optionB, optionC, optionD, answer
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Upload PDF</h3>
+
+      <label>Select PDF File</label>
+      <input type="file" id="pdfFile" accept=".pdf">
+
+      <div class="btnrow">
+        <button onclick="savePDF()">Save PDF Name</button>
+      </div>
+
+      <p id="pdfStatus">No PDF uploaded.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Exam Settings</h3>
+
+      <label>Duration in Minutes</label>
+      <input id="durationInput" type="number">
+
+      <label>Maximum Attempts</label>
+      <input id="maxAttemptInput" type="number">
+
+      <div class="btnrow">
+        <button onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Question Bank</h3>
+      <p id="questionStatus"></p>
+
+      <div class="btnrow">
+        <button class="secondary" onclick="loadSample()">Load Sample</button>
+        <button class="danger" onclick="clearQuestions()">Clear Questions</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Offline Data Backup</h3>
+    <p>Export or import all offline data saved in this browser.</p>
+
+    <div class="btnrow">
+      <button class="secondary" onclick="exportData()">Export Offline Data</button>
+      <button class="secondary" onclick="importDataClick()">Import Offline Data</button>
+      <input type="file" id="importDataFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Result Database</h3>
+    <div id="adminResultTable"></div>
+
+    <div class="btnrow">
+      <button onclick="renderAdminResults()">Refresh</button>
+      <button class="danger" onclick="clearResults()">Clear Results</button>
+      <button class="danger" onclick="resetAllData()">Reset All Data</button>
+    </div>
+  </div>
+
+  <div class="btnrow">
+    <button class="secondary" onclick="goLogin()">Back</button>
+  </div>
+</section>
+
+<section id="lockScreen" class="hidden result">
+  <div class="badge">Locked</div>
+  <h1>Test <span>Locked</span></h1>
+  <p id="lockReason"></p>
+  <button onclick="goHome()">Back</button>
+</section>
+
+<section id="examScreen" class="hidden">
+  <div class="topbar">
+    <div>
+      <h2>BPSC Mock Test</h2>
+      <p>Timed | No Skip | One Question</p>
+    </div>
+
+    <div class="attempts" id="attemptBox"></div>
+    <div class="camera" id="cameraStatus">Camera</div>
+    <div class="timer" id="timer"></div>
+  </div>
+
+  <div class="progresswrap">
+    <div class="progress" id="progressBar"></div>
+  </div>
+
+  <div class="examgrid">
+    <div class="questionbox">
+      <div class="qno" id="questionNumber"></div>
+      <div class="qtext" id="questionText"></div>
+      <div class="options" id="optionsBox"></div>
+
+      <div id="warningBox" class="notice hidden">
+        Select one answer.
+      </div>
+
+      <div class="btnrow">
+        <button id="nextBtn" onclick="nextQuestion()">Save & Next</button>
+        <button class="danger" onclick="manualSubmit()">Submit</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Camera</h3>
+      <video id="cameraPreview" autoplay muted playsinline></video>
+      <div class="notice" id="violationBox">Violations: 0</div>
+    </div>
+  </div>
+</section>
+
+<section id="resultScreen" class="hidden result">
+  <div class="badge">Submitted</div>
+  <h1>Test <span>Result</span></h1>
+  <p id="submitReason"></p>
+
+  <div class="scorecircle" id="scoreCircle">
+    <div class="scoreinner" id="scorePercent">0%</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="totalQ">0</b><span>Total</span></div>
+    <div class="stat"><b id="correctQ">0</b><span>Correct</span></div>
+    <div class="stat"><b id="wrongQ">0</b><span>Wrong</span></div>
+    <div class="stat"><b id="scoreQ">0</b><span>Score</span></div>
+    <div class="stat"><b id="violationQ">0</b><span>Violations</span></div>
+  </div>
+
+  <div class="btnrow" style="justify-content:center">
+    <button onclick="goHome()">Dashboard</button>
+    <button class="secondary" onclick="showHistory()">Results</button>
+  </div>
+</section>
+
+<section id="historyScreen" class="hidden">
+  <div class="badge">Results</div>
+  <h1>Result <span>History</span></h1>
+
+  <div id="studentResultTable"></div>
+
+  <div class="btnrow">
+    <button onclick="goHome()">Back</button>
+  </div>
+</section>
+
+</div>
+</div>
+
+<script>
+const sampleQuestions=[
+  {
+    question:"The BPSC Preliminary Examination is mainly conducted for which purpose?",
+    options:["Final merit preparation","Screening candidates for Mains","Interview selection only","Document verification"],
+    answer:1
+  },
+  {
+    question:"How many marks are generally assigned to the BPSC Preliminary Examination?",
+    options:["100 marks","120 marks","150 marks","300 marks"],
+    answer:2
+  },
+  {
+    question:"Which stage of the BPSC examination is descriptive in nature?",
+    options:["Preliminary Examination","Mains Examination","Interview","Physical Test"],
+    answer:1
+  },
+  {
+    question:"The final merit list of BPSC is prepared on the basis of marks obtained in:",
+    options:["Prelims only","Prelims and Mains","Mains and Interview","Interview only"],
+    answer:2
+  },
+  {
+    question:"What is the total mark value of the BPSC Interview stage?",
+    options:["100 marks","120 marks","150 marks","300 marks"],
+    answer:1
+  }
+];
+
+let currentUser=null;
+let questions=[];
+let currentQuestion=0;
+let selectedAnswers=[];
+let remainingTime=0;
+let timerInterval=null;
+let examStarted=false;
+let examSubmitted=false;
+let violationCount=0;
+let cameraStream=null;
+
+const screens=[
+  "loginScreen",
+  "homeScreen",
+  "adminScreen",
+  "lockScreen",
+  "examScreen",
+  "resultScreen",
+  "historyScreen"
+];
+
+function hideAll(){
+  screens.forEach(id=>document.getElementById(id).classList.add("hidden"));
+}
+
+function getJSON(key,fallback){
+  try{
+    const value=localStorage.getItem(key);
+    if(!value)return fallback;
+    return JSON.parse(value);
+  }catch{
+    return fallback;
+  }
+}
+
+function setJSON(key,value){
+  localStorage.setItem(key,JSON.stringify(value));
+}
+
+function getSettings(){
+  return getJSON("settings",{duration:120,maxAttempts:3});
+}
+
+function getQuestions(){
+  return getJSON("questions",sampleQuestions);
+}
+
+function getResults(){
+  return getJSON("results",[]);
+}
+
+function getPaid(id){
+  return localStorage.getItem("paid_"+id)==="yes";
+}
+
+function setPaid(id){
+  localStorage.setItem("paid_"+id,"yes");
+}
+
+function getAttempts(id){
+  return Number(localStorage.getItem("attempt_"+id)||0);
+}
+
+function setAttempts(id,value){
+  localStorage.setItem("attempt_"+id,value);
+}
+
+function studentLogin(){
+  const name=document.getElementById("studentName").value.trim();
+  const id=document.getElementById("studentId").value.trim();
+
+  if(!name||!id){
+    alert("Enter name and mobile/email.");
+    return;
+  }
+
+  currentUser={name,id};
+  goHome();
+}
+
+function adminLogin(){
+  const pass=document.getElementById("adminPassword").value;
+
+  if(pass!=="admin123"){
+    alert("Wrong password.");
+    return;
+  }
+
+  hideAll();
+  document.getElementById("adminScreen").classList.remove("hidden");
+
+  const settings=getSettings();
+  document.getElementById("durationInput").value=settings.duration;
+  document.getElementById("maxAttemptInput").value=settings.maxAttempts;
+
+  updateQuestionStatus();
+  renderAdminResults();
+
+  const pdf=localStorage.getItem("pdfName");
+  document.getElementById("pdfStatus").textContent=pdf?pdf:"No PDF uploaded.";
+}
+
+function goLogin(){
+  hideAll();
+  document.getElementById("loginScreen").classList.remove("hidden");
+}
+
+function goHome(){
+  stopCamera();
+  hideAll();
+
+  if(!currentUser){
+    goLogin();
+    return;
+  }
+
+  document.getElementById("studentWelcome").textContent=currentUser.name;
+
+  const settings=getSettings();
+  const paid=getPaid(currentUser.id);
+  const attempts=getAttempts(currentUser.id);
+
+  document.getElementById("paymentStatus").innerHTML=
+    paid?"Paid / Test Unlocked":"Unpaid / Test Locked";
+
+  document.getElementById("attemptStatus").innerHTML=
+    "Attempts Used: "+attempts+" / "+settings.maxAttempts;
+
+  document.getElementById("homeScreen").classList.remove("hidden");
+}
+
+function logout(){
+  currentUser=null;
+  goLogin();
+}
+
+function demoPayment(){
+  if(!currentUser)return;
+
+  setPaid(currentUser.id);
+  alert("Test unlocked.");
+  goHome();
+}
+
+function showLock(reason){
+  hideAll();
+  document.getElementById("lockReason").textContent=reason;
+  document.getElementById("lockScreen").classList.remove("hidden");
+}
+
+function startExam(){
+  if(!currentUser){
+    goLogin();
+    return;
+  }
+
+  if(!getPaid(currentUser.id)){
+    showLock("Payment required.");
+    return;
+  }
+
+  const settings=getSettings();
+  const attempts=getAttempts(currentUser.id);
+
+  if(attempts>=settings.maxAttempts){
+    showLock("Attempt limit reached.");
+    return;
+  }
+
+  questions=getQuestions();
+
+  if(!questions.length){
+    showLock("No questions available.");
+    return;
+  }
+
+  setAttempts(currentUser.id,attempts+1);
+
+  currentQuestion=0;
+  selectedAnswers=new Array(questions.length).fill(null);
+  remainingTime=settings.duration*60;
+  violationCount=0;
+  examStarted=true;
+  examSubmitted=false;
+
+  hideAll();
+  document.getElementById("examScreen").classList.remove("hidden");
+
+  document.getElementById("attemptBox").textContent=
+    "Attempt: "+(attempts+1)+" / "+settings.maxAttempts;
+
+  updateViolation();
+  loadQuestion();
+  startTimer();
+  startCamera();
+}
+
+function loadQuestion(){
+  const q=questions[currentQuestion];
+
+  document.getElementById("questionNumber").textContent=
+    "Question "+(currentQuestion+1)+" of "+questions.length;
+
+  document.getElementById("questionText").textContent=q.question;
+
+  const box=document.getElementById("optionsBox");
+  box.innerHTML="";
+
+  q.options.forEach((opt,index)=>{
+    const label=document.createElement("label");
+    label.className="option";
+
+    if(selectedAnswers[currentQuestion]===index){
+      label.classList.add("selected");
+    }
+
+    label.innerHTML='<input type="radio" name="opt"><span>'+escapeHTML(opt)+'</span>';
+
+    label.onclick=()=>{
+      selectedAnswers[currentQuestion]=index;
+      document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+      label.classList.add("selected");
+      document.getElementById("warningBox").classList.add("hidden");
+    };
+
+    box.appendChild(label);
+  });
+
+  document.getElementById("nextBtn").textContent=
+    currentQuestion===questions.length-1?"Save & Submit":"Save & Next";
+
+  document.getElementById("progressBar").style.width=
+    ((currentQuestion+1)/questions.length*100)+"%";
+}
+
+function nextQuestion(){
+  if(selectedAnswers[currentQuestion]===null){
+    document.getElementById("warningBox").classList.remove("hidden");
+    return;
+  }
+
+  if(currentQuestion===questions.length-1){
+    submitExam("Test submitted.");
+    return;
+  }
+
+  currentQuestion++;
+  loadQuestion();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+
+  timerInterval=setInterval(()=>{
+    remainingTime--;
+
+    if(remainingTime<=0){
+      submitExam("Time over.");
+      return;
+    }
+
+    updateTimer();
+  },1000);
+
+  updateTimer();
+}
+
+function updateTimer(){
+  const h=Math.floor(remainingTime/3600);
+  const m=Math.floor((remainingTime%3600)/60);
+  const s=remainingTime%60;
+
+  document.getElementById("timer").textContent=
+    String(h).padStart(2,"0")+":"+
+    String(m).padStart(2,"0")+":"+
+    String(s).padStart(2,"0");
+}
+
+function manualSubmit(){
+  if(confirm("Submit test?")){
+    submitExam("Test submitted manually.");
+  }
+}
+
+function submitExam(reason){
+  if(examSubmitted)return;
+
+  examSubmitted=true;
+  examStarted=false;
+  clearInterval(timerInterval);
+  stopCamera();
+
+  let correct=0,wrong=0,unattempted=0;
+
+  questions.forEach((q,i)=>{
+    if(selectedAnswers[i]===null){
+      unattempted++;
+    }else if(selectedAnswers[i]===q.answer){
+      correct++;
+    }else{
+      wrong++;
+    }
+  });
+
+  const total=questions.length;
+  const percent=Math.round((correct/total)*100);
+
+  const result={
+    name:currentUser.name,
+    id:currentUser.id,
+    total,
+    correct,
+    wrong,
+    unattempted,
+    score:correct,
+    percent,
+    violations:violationCount,
+    date:new Date().toLocaleString()
+  };
+
+  const results=getResults();
+  results.push(result);
+  setJSON("results",results);
+
+  hideAll();
+  document.getElementById("resultScreen").classList.remove("hidden");
+
+  document.getElementById("submitReason").textContent=reason;
+  document.getElementById("totalQ").textContent=total;
+  document.getElementById("correctQ").textContent=correct;
+  document.getElementById("wrongQ").textContent=wrong;
+  document.getElementById("scoreQ").textContent=correct+" / "+total;
+  document.getElementById("violationQ").textContent=violationCount;
+  document.getElementById("scorePercent").textContent=percent+"%";
+  document.getElementById("scoreCircle").style.setProperty("--angle",(percent/100*360)+"deg");
+}
+
+function addViolation(){
+  violationCount++;
+  updateViolation();
+}
+
+function updateViolation(){
+  const box=document.getElementById("violationBox");
+  if(box){
+    box.textContent="Violations: "+violationCount;
+  }
+}
+
+async function startCamera(){
+  try{
+    cameraStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    document.getElementById("cameraPreview").srcObject=cameraStream;
+    document.getElementById("cameraStatus").textContent="Camera Active";
+  }catch(e){
+    document.getElementById("cameraStatus").textContent="Camera Denied";
+    addViolation();
+  }
+}
+
+function stopCamera(){
+  if(cameraStream){
+    cameraStream.getTracks().forEach(t=>t.stop());
+  }
+  cameraStream=null;
+}
+
+document.addEventListener("visibilitychange",()=>{
+  if(examStarted&&!examSubmitted&&document.hidden){
+    addViolation();
+    submitExam("Auto-submitted due to tab change.");
+  }
+});
+
+window.addEventListener("blur",()=>{
+  if(examStarted&&!examSubmitted){
+    addViolation();
+    submitExam("Auto-submitted due to window change.");
+  }
+});
+
+document.addEventListener("contextmenu",e=>{
+  if(examStarted)e.preventDefault();
+});
+
+["copy","cut","paste","selectstart"].forEach(ev=>{
+  document.addEventListener(ev,e=>{
+    if(examStarted)e.preventDefault();
+  });
+});
+
+document.addEventListener("keydown",e=>{
+  if(!examStarted)return;
+
+  const k=e.key.toLowerCase();
+
+  if(
+    e.key==="F12" ||
+    (e.ctrlKey&&["u","s","p","c","v","x"].includes(k)) ||
+    (e.ctrlKey&&e.shiftKey&&["i","j"].includes(k))
+  ){
+    e.preventDefault();
+    addViolation();
+  }
+});
+
+function uploadCSV(){
+  const file=document.getElementById("csvFile").files[0];
+
+  if(!file){
+    alert("Select CSV file.");
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=e=>{
+    const rows=e.target.result.split(/\r?\n/).filter(r=>r.trim());
+    const parsed=[];
+
+    for(let i=1;i<rows.length;i++){
+      const c=parseCSV(rows[i]);
+
+      if(c.length<6)continue;
+
+      const ans=c[5].trim().toUpperCase();
+      const map={A:0,B:1,C:2,D:3};
+
+      if(!(ans in map))continue;
+
+      parsed.push({
+        question:c[0].trim(),
+        options:[
+          c[1].trim(),
+          c[2].trim(),
+          c[3].trim(),
+          c[4].trim()
+        ],
+        answer:map[ans]
+      });
+    }
+
+    if(!parsed.length){
+      alert("Invalid CSV.");
+      return;
+    }
+
+    setJSON("questions",parsed);
+    updateQuestionStatus();
+    alert(parsed.length+" questions uploaded.");
+  };
+
+  reader.readAsText(file);
+}
+
+function parseCSV(line){
+  const result=[];
+  let cur="";
+  let quote=false;
+
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+
+    if(ch==='"'&&line[i+1]==='"'){
+      cur+='"';
+      i++;
+    }else if(ch==='"'){
+      quote=!quote;
+    }else if(ch===","&&!quote){
+      result.push(cur);
+      cur="";
+    }else{
+      cur+=ch;
+    }
+  }
+
+  result.push(cur);
+  return result;
+}
+
+function downloadCSV(){
+  const data=
+`question,optionA,optionB,optionC,optionD,answer
+"The BPSC Preliminary Examination is conducted for which purpose?","Final merit preparation","Screening candidates for Mains","Interview selection only","Document verification","B"
+"How many marks are assigned to BPSC Prelims?","100","120","150","300","C"`;
+
+  const blob=new Blob([data],{type:"text/csv"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="bpsc-question-sample.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function savePDF(){
+  const file=document.getElementById("pdfFile").files[0];
+
+  if(!file){
+    alert("Select PDF.");
+    return;
+  }
+
+  localStorage.setItem("pdfName",file.name);
+  document.getElementById("pdfStatus").textContent=file.name;
+}
+
+function saveSettings(){
+  const duration=Number(document.getElementById("durationInput").value);
+  const maxAttempts=Number(document.getElementById("maxAttemptInput").value);
+
+  if(duration<1||maxAttempts<1){
+    alert("Enter valid settings.");
+    return;
+  }
+
+  setJSON("settings",{duration,maxAttempts});
+  alert("Settings saved.");
+}
+
+function updateQuestionStatus(){
+  document.getElementById("questionStatus").textContent=
+    "Questions: "+getQuestions().length;
+}
+
+function loadSample(){
+  setJSON("questions",sampleQuestions);
+  updateQuestionStatus();
+}
+
+function clearQuestions(){
+  if(confirm("Clear questions?")){
+    localStorage.removeItem("questions");
+    updateQuestionStatus();
+  }
+}
+
+function showHistory(){
+  hideAll();
+
+  const results=getResults().filter(r=>currentUser&&r.id===currentUser.id);
+  document.getElementById("studentResultTable").innerHTML=resultTable(results);
+
+  document.getElementById("historyScreen").classList.remove("hidden");
+}
+
+function renderAdminResults(){
+  document.getElementById("adminResultTable").innerHTML=resultTable(getResults());
+}
+
+function resultTable(results){
+  if(!results.length){
+    return '<div class="notice">No results found.</div>';
+  }
+
+  let html='<table><tr><th>Name</th><th>ID</th><th>Score</th><th>%</th><th>Correct</th><th>Wrong</th><th>Violations</th><th>Date</th></tr>';
+
+  results.forEach(r=>{
+    html+=`
+      <tr>
+        <td>${escapeHTML(r.name)}</td>
+        <td>${escapeHTML(r.id)}</td>
+        <td>${r.score}/${r.total}</td>
+        <td>${r.percent}%</td>
+        <td>${r.correct}</td>
+        <td>${r.wrong}</td>
+        <td>${r.violations}</td>
+        <td>${r.date}</td>
+      </tr>`;
+  });
+
+  html+='</table>';
+  return html;
+}
+
+function clearResults(){
+  if(confirm("Clear all results?")){
+    localStorage.removeItem("results");
+    renderAdminResults();
+  }
+}
+
+function exportData(){
+  const backup={};
+
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    backup[key]=localStorage.getItem(key);
+  }
+
+  const blob=new Blob(
+    [JSON.stringify(backup,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="bpsc-offline-data-backup.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importDataClick(){
+  document.getElementById("importDataFile").click();
+}
+
+function importData(event){
+  const file=event.target.files[0];
+
+  if(!file){
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=function(e){
+    try{
+      const backup=JSON.parse(e.target.result);
+
+      if(typeof backup!=="object"||Array.isArray(backup)){
+        alert("Invalid backup file.");
+        return;
+      }
+
+      Object.keys(backup).forEach(key=>{
+        localStorage.setItem(key,backup[key]);
+      });
+
+      alert("Offline data imported successfully.");
+      location.reload();
+    }catch(error){
+      alert("Invalid backup file.");
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function resetAllData(){
+  if(confirm("This will delete all offline data. Continue?")){
+    localStorage.clear();
+    alert("All data cleared.");
+    location.reload();
+  }
+}
+
+function escapeHTML(v){
+  return String(v)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+window.onload=()=>{
+  if(!localStorage.getItem("questions")){
+    setJSON("questions",sampleQuestions);
+  }
+};
+</script>
+</body>
+</html>
