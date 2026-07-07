@@ -138,6 +138,19 @@ button.success{
   flex-wrap:wrap;
   margin-top:18px;
 }
+
+.smalltext{
+  font-size:12px;
+  color:#94a3b8;
+  line-height:1.5;
+}
+.codebox{
+  font-family:Consolas,Monaco,monospace;
+  font-size:13px;
+  min-height:170px;
+  white-space:pre;
+}
+
 .notice{
   margin-top:14px;
   background:rgba(251,191,36,.13);
@@ -432,6 +445,9 @@ th{
       <label>Maximum Attempts</label>
       <input id="maxAttemptInput" type="number">
 
+      <label>Questions Per Test</label>
+      <input id="questionCountInput" type="number" placeholder="Example: 150 for BPSC Prelims">
+
       <div class="btnrow">
         <button onclick="saveSettings()">Save</button>
       </div>
@@ -443,8 +459,38 @@ th{
 
       <div class="btnrow">
         <button class="secondary" onclick="loadSample()">Load Sample</button>
+        <button class="secondary" onclick="downloadCodeFormat()">Download Code Format</button>
         <button class="danger" onclick="clearQuestions()">Clear Questions</button>
       </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Bulk Question Paste</h3>
+    <p class="smalltext">Paste questions in BPSC-style format. Supported answer styles: Answer: A, Ans: B, उत्तर: C.</p>
+
+    <textarea id="bulkQuestions" class="codebox" placeholder="1. Which river is known as the Sorrow of Bihar?
+(A) Ganga
+(B) Kosi
+(C) Gandak
+(D) Son
+Answer: B
+
+2. Bihar Diwas is celebrated on which date?
+(A) 22 March
+(B) 26 January
+(C) 15 August
+(D) 2 October
+Answer: A"></textarea>
+
+    <div class="btnrow">
+      <button onclick="uploadBulkQuestions()">Upload Bulk Questions</button>
+      <button class="secondary" onclick="loadBulkSample()">Sample Format</button>
+      <button class="secondary" onclick="copyDirectCodeFormat()">Copy Direct Code Format</button>
+    </div>
+
+    <div class="notice">
+      Format: Question number + question text + 4 options + answer. The exam will randomly arrange questions and avoid repeating questions for the same student until the question bank is exhausted.
     </div>
   </div>
 
@@ -561,31 +607,1218 @@ th{
 
 <script>
 const sampleQuestions=[
+  
   {
-    question:"The BPSC Preliminary Examination is mainly conducted for which purpose?",
-    options:["Final merit preparation","Screening candidates for Mains","Interview selection only","Document verification"],
+    question:"Which Article of the Indian Constitution provides for the establishment of State Public Service Commissions?",
+    options:["Article 312","Article 315","Article 320","Article 324"],
     answer:1
-  },
-  {
-    question:"How many marks are generally assigned to the BPSC Preliminary Examination?",
-    options:["100 marks","120 marks","150 marks","300 marks"],
+},
+{
+    question:"The headquarters of the Bihar Public Service Commission is located in?",
+    options:["Gaya","Patna","Muzaffarpur","Darbhanga"],
+    answer:1
+},
+{
+    question:"Which river is known as the 'Sorrow of Bihar'?",
+    options:["Son","Gandak","Kosi","Punpun"],
     answer:2
-  },
-  {
-    question:"Which stage of the BPSC examination is descriptive in nature?",
-    options:["Preliminary Examination","Mains Examination","Interview","Physical Test"],
-    answer:1
-  },
-  {
-    question:"The final merit list of BPSC is prepared on the basis of marks obtained in:",
-    options:["Prelims only","Prelims and Mains","Mains and Interview","Interview only"],
+},
+{
+    question:"The Champaran Satyagraha was launched in which year?",
+    options:["1915","1916","1917","1918"],
     answer:2
-  },
-  {
-    question:"What is the total mark value of the BPSC Interview stage?",
-    options:["100 marks","120 marks","150 marks","300 marks"],
+},
+{
+    question:"Which district of Bihar is famous for Madhubani paintings?",
+    options:["Patna","Darbhanga","Madhubani","Gaya"],
+    answer:2
+},
+{
+    question:"Who was the first President of independent India?",
+    options:["Jawaharlal Nehru","Dr. Rajendra Prasad","Sardar Patel","C. Rajagopalachari"],
     answer:1
-  }
+},
+{
+    question:"The Mahabodhi Temple is situated in?",
+    options:["Rajgir","Nalanda","Bodh Gaya","Vaishali"],
+    answer:2
+},
+{
+    question:"Which Schedule of the Constitution deals with Panchayats?",
+    options:["10th","11th","12th","9th"],
+    answer:1
+},
+{
+    question:"Which is the largest river flowing through Bihar?",
+    options:["Kosi","Ganga","Gandak","Son"],
+    answer:1
+},
+{
+    question:"Who founded the Maurya Empire?",
+    options:["Ashoka","Bindusara","Chandragupta Maurya","Bimbisara"],
+    answer:2
+},
+{
+    question:"The headquarters of East Central Railway is located at?",
+    options:["Patna","Hajipur","Gaya","Bhagalpur"],
+    answer:1
+},
+{
+    question:"Which vitamin is synthesized in sunlight?",
+    options:["Vitamin A","Vitamin B","Vitamin C","Vitamin D"],
+    answer:3
+},
+{
+    question:"The Right to Education became a Fundamental Right through which Amendment?",
+    options:["84th","86th","91st","97th"],
+    answer:1
+},
+{
+    question:"The Vikramshila University was located in present-day?",
+    options:["Patna","Gaya","Bhagalpur","Muzaffarpur"],
+    answer:2
+},
+{
+    question:"Which gas is most responsible for global warming?",
+    options:["Nitrogen","Oxygen","Carbon Dioxide","Hydrogen"],
+    answer:2
+},
+{
+    question:"The Election Commission is mentioned under which Article?",
+    options:["324","326","315","356"],
+    answer:0
+},
+{
+    question:"Which crop is the major food crop of Bihar?",
+    options:["Wheat","Rice","Maize","Millets"],
+    answer:1
+},
+{
+    question:"Who wrote the Arthashastra?",
+    options:["Kalidasa","Chanakya","Patanjali","Panini"],
+    answer:1
+},
+{
+    question:"The Gandak River originates in?",
+    options:["Nepal","Tibet","Bhutan","Sikkim"],
+    answer:0
+},
+{
+    question:"The National Human Rights Commission was established in?",
+    options:["1992","1993","1994","1995"],
+    answer:1
+},
+{
+    question:"Who was the first Chief Minister of Bihar?",
+    options:["Sri Krishna Sinha","Anugrah Narayan Sinha","Karpoori Thakur","Bindeshwari Dubey"],
+    answer:0
+},
+{
+    question:"The headquarters of the National Disaster Management Authority is located in?",
+    options:["Mumbai","New Delhi","Hyderabad","Patna"],
+    answer:1
+},
+{
+    question:"Which Article of the Indian Constitution deals with Fundamental Duties?",
+    options:["Article 48A","Article 51A","Article 32","Article 21"],
+    answer:1
+},
+{
+    question:"The Indus Valley Civilization was first discovered at?",
+    options:["Harappa","Mohenjo-daro","Lothal","Kalibangan"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is famous for Katarni rice?",
+    options:["Bhagalpur","Banka","Begusarai","Purnia"],
+    answer:1
+},
+{
+    question:"The President of India is elected for a term of?",
+    options:["4 years","5 years","6 years","7 years"],
+    answer:1
+},
+{
+    question:"Which is the largest freshwater lake in India?",
+    options:["Dal Lake","Chilika Lake","Wular Lake","Loktak Lake"],
+    answer:2
+},
+{
+    question:"Who gave the slogan 'Jai Jawan Jai Kisan'?",
+    options:["Jawaharlal Nehru","Lal Bahadur Shastri","Indira Gandhi","Morarji Desai"],
+    answer:1
+},
+{
+    question:"Which Constitutional Amendment reduced the voting age from 21 years to 18 years?",
+    options:["42nd","44th","61st","73rd"],
+    answer:2
+},
+{
+    question:"The Punpun River is a tributary of which river?",
+    options:["Son","Ganga","Gandak","Kosi"],
+    answer:1
+},
+{
+    question:"Which city is known as the ancient center of learning in Bihar?",
+    options:["Patna","Nalanda","Rajgir","Buxar"],
+    answer:1
+},
+{
+    question:"The headquarters of the Reserve Bank of India is located in?",
+    options:["Mumbai","New Delhi","Chennai","Kolkata"],
+    answer:0
+},
+{
+    question:"The Tropic of Cancer passes through how many Indian states?",
+    options:["6","7","8","9"],
+    answer:2
+},
+{
+    question:"Which Mughal emperor built the Buland Darwaza?",
+    options:["Akbar","Shah Jahan","Aurangzeb","Humayun"],
+    answer:0
+},
+{
+    question:"The first session of the Indian National Congress was held in?",
+    options:["Bombay","Calcutta","Madras","Allahabad"],
+    answer:0
+},
+{
+    question:"The primary source of energy for the Sun is?",
+    options:["Combustion","Nuclear Fusion","Nuclear Fission","Oxidation"],
+    answer:1
+},
+{
+    question:"Which state forms the eastern boundary of Bihar?",
+    options:["Jharkhand","Uttar Pradesh","West Bengal","Sikkim"],
+    answer:2
+},
+{
+    question:"India is described in the Constitution as a?",
+    options:["Federation","Union of States","Confederation","Republic only"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known as the Silk City?",
+    options:["Patna","Gaya","Bhagalpur","Araria"],
+    answer:2
+},
+{
+    question:"The headquarters of ISRO is situated at?",
+    options:["Hyderabad","Bengaluru","Chennai","Ahmedabad"],
+    answer:1
+},
+{
+    question:"Which vitamin is essential for blood clotting?",
+    options:["Vitamin A","Vitamin C","Vitamin K","Vitamin D"],
+    answer:2
+},
+{
+    question:"Who founded the Gupta Empire?",
+    options:["Samudragupta","Chandragupta I","Chandragupta II","Kumaragupta"],
+    answer:1
+},
+{
+    question:"Which river originates from Amarkantak Plateau?",
+    options:["Godavari","Narmada","Son","Kaveri"],
+    answer:2
+},
+{
+    question:"The list of States and Union Territories is given in which Schedule of the Constitution?",
+    options:["First Schedule","Second Schedule","Third Schedule","Fourth Schedule"],
+    answer:0
+},
+{
+    question:"Who appoints the Governor of an Indian state?",
+    options:["Prime Minister","President","Chief Minister","Chief Justice of India"],
+    answer:1
+},
+{
+    question:"Which is the most populous district of Bihar?",
+    options:["Patna","Gaya","Muzaffarpur","East Champaran"],
+    answer:0
+},
+{
+    question:"The headquarters of the World Health Organization is located in?",
+    options:["Paris","New York","Geneva","London"],
+    answer:2
+},
+{
+    question:"Which is the longest river in India?",
+    options:["Yamuna","Ganga","Brahmaputra","Godavari"],
+    answer:1
+},
+{
+    question:"The Battle of Plassey was fought in?",
+    options:["1757","1761","1764","1857"],
+    answer:0
+},
+{
+    question:"Which gas is commonly filled in incandescent electric bulbs?",
+    options:["Nitrogen","Hydrogen","Argon","Oxygen"],
+    answer:2
+},
+{
+    question:"The Bihar Legislative Council is a?",
+    options:["Temporary House","Permanent House","Judicial Body","Executive Body"],
+    answer:1
+},
+{
+    question:"Who was the first Vice President of India?",
+    options:["Dr. S. Radhakrishnan","Dr. Zakir Husain","V. V. Giri","Gopal Swarup Pathak"],
+    answer:0
+},
+{
+    question:"Which national park is situated in West Champaran district?",
+    options:["Valmiki National Park","Betla National Park","Kanha National Park","Simlipal National Park"],
+    answer:0
+},
+{
+    question:"The Speaker of the Lok Sabha submits resignation to?",
+    options:["President","Prime Minister","Deputy Speaker","Vice President"],
+    answer:2
+},
+{
+    question:"Which city is popularly known as the 'Gateway of Bihar'?",
+    options:["Patna","Buxar","Kishanganj","Muzaffarpur"],
+    answer:2
+},
+{
+    question:"Which instrument is used to measure atmospheric pressure?",
+    options:["Thermometer","Barometer","Hygrometer","Ammeter"],
+    answer:1
+},
+{
+    question:"Who launched the Home Rule Movement along with Annie Besant?",
+    options:["Bal Gangadhar Tilak","Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose"],
+    answer:0
+},
+{
+    question:"Which river is popularly known as the 'Dakshin Ganga'?",
+    options:["Krishna","Kaveri","Godavari","Mahanadi"],
+    answer:2
+},
+{
+    question:"The headquarters of the Bihar School Examination Board is located at?",
+    options:["Patna","Gaya","Darbhanga","Hajipur"],
+    answer:0
+},
+{
+    question:"Which Fundamental Right abolishes untouchability?",
+    options:["Right to Equality","Right to Freedom","Right against Exploitation","Cultural and Educational Rights"],
+    answer:0
+},
+{
+    question:"Which state is the largest producer of litchi in India?",
+    options:["Bihar","Uttar Pradesh","West Bengal","Punjab"],
+    answer:0
+},
+{
+    question:"The headquarters of the National Green Tribunal is situated in?",
+    options:["New Delhi","Mumbai","Chennai","Bhopal"],
+    answer:0
+},
+{
+    question:"The Earth completes one revolution around the Sun in approximately?",
+    options:["364 days","365¼ days","366 days","360 days"],
+    answer:1
+},
+{
+    question:"Which dynasty established Vikramshila University?",
+    options:["Maurya","Gupta","Pala","Nanda"],
+    answer:2
+},
+{
+    question:"The Right to Constitutional Remedies is provided under which Article?",
+    options:["Article 14","Article 19","Article 21","Article 32"],
+    answer:3
+},
+{
+    question:"The headquarters of the Central Vigilance Commission is located in?",
+    options:["Mumbai","New Delhi","Chennai","Patna"],
+    answer:1
+},
+{
+    question:"The famous Sonepur Cattle Fair is held in which district?",
+    options:["Saran","Vaishali","Patna","Nalanda"],
+    answer:0
+},
+{
+    question:"Who was the first woman Governor of Bihar?",
+    options:["Sarojini Naidu","Ram Dulari Sinha","Pratibha Patil","Mridula Sinha"],
+    answer:1
+},
+{
+    question:"Which river forms part of the boundary between Bihar and Uttar Pradesh?",
+    options:["Son","Gandak","Ganga","Ghaghara"],
+    answer:3
+},
+{
+    question:"Which Article of the Constitution guarantees equality before the law?",
+    options:["Article 14","Article 15","Article 16","Article 17"],
+    answer:0
+},
+{
+    question:"Which city is the capital of Bihar?",
+    options:["Gaya","Patna","Muzaffarpur","Bhagalpur"],
+    answer:1
+},
+  {
+    question:"Who was the first Chief Minister of Bihar?",
+    options:["Sri Krishna Sinha","Anugrah Narayan Sinha","Karpoori Thakur","Bindeshwari Dubey"],
+    answer:0
+},
+{
+    question:"The headquarters of the National Disaster Management Authority is located in?",
+    options:["Mumbai","New Delhi","Hyderabad","Patna"],
+    answer:1
+},
+{
+    question:"Which Article of the Indian Constitution deals with Fundamental Duties?",
+    options:["Article 48A","Article 51A","Article 32","Article 21"],
+    answer:1
+},
+{
+    question:"The Indus Valley Civilization was first discovered at?",
+    options:["Harappa","Mohenjo-daro","Lothal","Kalibangan"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is famous for Katarni rice?",
+    options:["Bhagalpur","Banka","Begusarai","Purnia"],
+    answer:1
+},
+{
+    question:"The President of India is elected for a term of?",
+    options:["4 years","5 years","6 years","7 years"],
+    answer:1
+},
+{
+    question:"Which is the largest freshwater lake in India?",
+    options:["Dal Lake","Chilika Lake","Wular Lake","Loktak Lake"],
+    answer:2
+},
+{
+    question:"Who gave the slogan 'Jai Jawan Jai Kisan'?",
+    options:["Jawaharlal Nehru","Lal Bahadur Shastri","Indira Gandhi","Morarji Desai"],
+    answer:1
+},
+{
+    question:"Which Constitutional Amendment reduced the voting age from 21 years to 18 years?",
+    options:["42nd","44th","61st","73rd"],
+    answer:2
+},
+{
+    question:"The Punpun River is a tributary of which river?",
+    options:["Son","Ganga","Gandak","Kosi"],
+    answer:1
+},
+{
+    question:"Which city is known as the ancient center of learning in Bihar?",
+    options:["Patna","Nalanda","Rajgir","Buxar"],
+    answer:1
+},
+{
+    question:"The headquarters of the Reserve Bank of India is located in?",
+    options:["Mumbai","New Delhi","Chennai","Kolkata"],
+    answer:0
+},
+{
+    question:"The Tropic of Cancer passes through how many Indian states?",
+    options:["6","7","8","9"],
+    answer:2
+},
+{
+    question:"Which Mughal emperor built the Buland Darwaza?",
+    options:["Akbar","Shah Jahan","Aurangzeb","Humayun"],
+    answer:0
+},
+{
+    question:"The first session of the Indian National Congress was held in?",
+    options:["Bombay","Calcutta","Madras","Allahabad"],
+    answer:0
+},
+{
+    question:"The primary source of energy for the Sun is?",
+    options:["Combustion","Nuclear Fusion","Nuclear Fission","Oxidation"],
+    answer:1
+},
+{
+    question:"Which state forms the eastern boundary of Bihar?",
+    options:["Jharkhand","Uttar Pradesh","West Bengal","Sikkim"],
+    answer:2
+},
+{
+    question:"India is described in the Constitution as a?",
+    options:["Federation","Union of States","Confederation","Republic only"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known as the Silk City?",
+    options:["Patna","Gaya","Bhagalpur","Araria"],
+    answer:2
+},
+{
+    question:"The headquarters of ISRO is situated at?",
+    options:["Hyderabad","Bengaluru","Chennai","Ahmedabad"],
+    answer:1
+},
+{
+    question:"Which vitamin is essential for blood clotting?",
+    options:["Vitamin A","Vitamin C","Vitamin K","Vitamin D"],
+    answer:2
+},
+{
+    question:"Who founded the Gupta Empire?",
+    options:["Samudragupta","Chandragupta I","Chandragupta II","Kumaragupta"],
+    answer:1
+},
+{
+    question:"Which river originates from Amarkantak Plateau?",
+    options:["Godavari","Narmada","Son","Kaveri"],
+    answer:2
+},
+{
+    question:"The list of States and Union Territories is given in which Schedule of the Constitution?",
+    options:["First Schedule","Second Schedule","Third Schedule","Fourth Schedule"],
+    answer:0
+},
+{
+    question:"Who appoints the Governor of an Indian state?",
+    options:["Prime Minister","President","Chief Minister","Chief Justice of India"],
+    answer:1
+},
+{
+    question:"Which is the most populous district of Bihar?",
+    options:["Patna","Gaya","Muzaffarpur","East Champaran"],
+    answer:0
+},
+{
+    question:"The headquarters of the World Health Organization is located in?",
+    options:["Paris","New York","Geneva","London"],
+    answer:2
+},
+{
+    question:"Which is the longest river in India?",
+    options:["Yamuna","Ganga","Brahmaputra","Godavari"],
+    answer:1
+},
+{
+    question:"The Battle of Plassey was fought in?",
+    options:["1757","1761","1764","1857"],
+    answer:0
+},
+{
+    question:"Which gas is commonly filled in incandescent electric bulbs?",
+    options:["Nitrogen","Hydrogen","Argon","Oxygen"],
+    answer:2
+},
+{
+    question:"The Bihar Legislative Council is a?",
+    options:["Temporary House","Permanent House","Judicial Body","Executive Body"],
+    answer:1
+},
+{
+    question:"Who was the first Vice President of India?",
+    options:["Dr. S. Radhakrishnan","Dr. Zakir Husain","V. V. Giri","Gopal Swarup Pathak"],
+    answer:0
+},
+{
+    question:"Which national park is situated in West Champaran district?",
+    options:["Valmiki National Park","Betla National Park","Kanha National Park","Simlipal National Park"],
+    answer:0
+},
+{
+    question:"The Speaker of the Lok Sabha submits resignation to?",
+    options:["President","Prime Minister","Deputy Speaker","Vice President"],
+    answer:2
+},
+{
+    question:"Which city is popularly known as the 'Gateway of Bihar'?",
+    options:["Patna","Buxar","Kishanganj","Muzaffarpur"],
+    answer:2
+},
+{
+    question:"Which instrument is used to measure atmospheric pressure?",
+    options:["Thermometer","Barometer","Hygrometer","Ammeter"],
+    answer:1
+},
+{
+    question:"Who launched the Home Rule Movement along with Annie Besant?",
+    options:["Bal Gangadhar Tilak","Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose"],
+    answer:0
+},
+{
+    question:"Which river is popularly known as the 'Dakshin Ganga'?",
+    options:["Krishna","Kaveri","Godavari","Mahanadi"],
+    answer:2
+},
+{
+    question:"The headquarters of the Bihar School Examination Board is located at?",
+    options:["Patna","Gaya","Darbhanga","Hajipur"],
+    answer:0
+},
+{
+    question:"Which Fundamental Right abolishes untouchability?",
+    options:["Right to Equality","Right to Freedom","Right against Exploitation","Cultural and Educational Rights"],
+    answer:0
+},
+{
+    question:"Which state is the largest producer of litchi in India?",
+    options:["Bihar","Uttar Pradesh","West Bengal","Punjab"],
+    answer:0
+},
+{
+    question:"The headquarters of the National Green Tribunal is situated in?",
+    options:["New Delhi","Mumbai","Chennai","Bhopal"],
+    answer:0
+},
+{
+    question:"The Earth completes one revolution around the Sun in approximately?",
+    options:["364 days","365¼ days","366 days","360 days"],
+    answer:1
+},
+{
+    question:"Which dynasty established Vikramshila University?",
+    options:["Maurya","Gupta","Pala","Nanda"],
+    answer:2
+},
+{
+    question:"The Right to Constitutional Remedies is provided under which Article?",
+    options:["Article 14","Article 19","Article 21","Article 32"],
+    answer:3
+},
+{
+    question:"The headquarters of the Central Vigilance Commission is located in?",
+    options:["Mumbai","New Delhi","Chennai","Patna"],
+    answer:1
+},
+{
+    question:"The famous Sonepur Cattle Fair is held in which district?",
+    options:["Saran","Vaishali","Patna","Nalanda"],
+    answer:0
+},
+{
+    question:"Who was the first woman Governor of Bihar?",
+    options:["Sarojini Naidu","Ram Dulari Sinha","Pratibha Patil","Mridula Sinha"],
+    answer:1
+},
+{
+    question:"Which river forms part of the boundary between Bihar and Uttar Pradesh?",
+    options:["Son","Gandak","Ganga","Ghaghara"],
+    answer:3
+},
+{
+    question:"Which Article of the Constitution guarantees equality before the law?",
+    options:["Article 14","Article 15","Article 16","Article 17"],
+    answer:0
+},
+{
+    question:"Which city is the capital of Bihar?",
+    options:["Gaya","Patna","Muzaffarpur","Bhagalpur"],
+    answer:1
+},
+{
+    question:"Who is known as the Father of the Indian Constitution?",
+    options:["Mahatma Gandhi","Dr. B. R. Ambedkar","Jawaharlal Nehru","Sardar Vallabhbhai Patel"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is famous for Shahi Litchi?",
+    options:["Darbhanga","Muzaffarpur","Patna","Nalanda"],
+    answer:1
+},
+{
+    question:"The Constitution of India originally contained how many Articles?",
+    options:["395","448","356","280"],
+    answer:0
+},
+{
+    question:"Which river is the longest tributary of the Ganga?",
+    options:["Yamuna","Son","Kosi","Gandak"],
+    answer:0
+},
+{
+    question:"Who was the founder of the Pala Dynasty?",
+    options:["Dharmapala","Devapala","Gopala","Mahipala"],
+    answer:2
+},
+{
+    question:"Which city is known as the 'City of Ancient Universities' in Bihar?",
+    options:["Rajgir","Nalanda","Patna","Vaishali"],
+    answer:1
+},
+{
+    question:"The Finance Commission is constituted under which Article of the Constitution?",
+    options:["Article 280","Article 324","Article 315","Article 368"],
+    answer:0
+},
+{
+    question:"The headquarters of the Bihar State Tourism Development Corporation is located in?",
+    options:["Patna","Rajgir","Gaya","Bhagalpur"],
+    answer:0
+},
+{
+    question:"Which is the smallest district of Bihar by area?",
+    options:["Sheohar","Arwal","Sheikhpura","Lakhisarai"],
+    answer:0
+},
+{
+    question:"Which Fundamental Duty encourages the development of scientific temper?",
+    options:["Article 51A(a)","Article 51A(h)","Article 51A(e)","Article 51A(j)"],
+    answer:1
+},
+{
+    question:"The Indian National Calendar is based on which era?",
+    options:["Vikram Samvat","Shaka Era","Hijri Era","Gregorian Era"],
+    answer:1
+},
+{
+    question:"Who was the first woman Chief Minister of Bihar?",
+    options:["Rabri Devi","Meira Kumar","Sushma Swaraj","Sheila Dikshit"],
+    answer:0
+},
+{
+    question:"Which wildlife sanctuary is located in Bhagalpur district?",
+    options:["Valmiki Wildlife Sanctuary","Vikramshila Dolphin Sanctuary","Kaimur Wildlife Sanctuary","Gautam Buddha Wildlife Sanctuary"],
+    answer:1
+},
+{
+    question:"Which Indian state has the longest international border with Nepal?",
+    options:["Uttar Pradesh","Bihar","West Bengal","Sikkim"],
+    answer:1
+},
+{
+    question:"Which Article deals with the amendment of the Constitution?",
+    options:["356","324","368","370"],
+    answer:2
+},
+{
+    question:"Which is the official language of Bihar?",
+    options:["Hindi","Urdu","Maithili","Hindi and Urdu"],
+    answer:3
+},
+{
+    question:"Who wrote the book 'Discovery of India'?",
+    options:["Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose","Dr. Rajendra Prasad"],
+    answer:1
+},
+{
+    question:"The Kaimur Plateau is located in which part of Bihar?",
+    options:["Northern Bihar","Southern Bihar","Eastern Bihar","North-Eastern Bihar"],
+    answer:1
+},
+{
+    question:"Which planet is known as the Red Planet?",
+    options:["Venus","Mars","Jupiter","Mercury"],
+    answer:1
+},
+{
+    question:"The Bihar Panchayati Raj Act was enacted in which year?",
+    options:["1991","1993","2006","2011"],
+    answer:2
+},
+{
+    question:"Which Buddhist Council was held at Vaishali?",
+    options:["First","Second","Third","Fourth"],
+    answer:1
+},
+{
+    question:"The headquarters of the National Commission for Women is located in?",
+    options:["New Delhi","Mumbai","Kolkata","Chennai"],
+    answer:0
+},
+{
+    question:"Which river enters Bihar first from Nepal?",
+    options:["Kosi","Gandak","Bagmati","Kamla"],
+    answer:1
+},
+{
+    question:"Which Article abolishes titles except military and academic distinctions?",
+    options:["Article 17","Article 18","Article 19","Article 20"],
+    answer:1
+},
+{
+    question:"The first census in India was conducted in which year?",
+    options:["1872","1881","1891","1901"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is famous for Makhana production?",
+    options:["Madhubani","Darbhanga","Katihar","Begusarai"],
+    answer:1
+},
+{
+    question:"The headquarters of the Central Board of Direct Taxes is situated in?",
+    options:["New Delhi","Mumbai","Chennai","Kolkata"],
+    answer:0
+},
+{
+    question:"Which gas is essential for photosynthesis?",
+    options:["Oxygen","Carbon Dioxide","Nitrogen","Hydrogen"],
+    answer:1
+},
+{
+    question:"Who was the first Governor-General of Bengal?",
+    options:["Lord Curzon","Warren Hastings","Lord Cornwallis","William Bentinck"],
+    answer:1
+},
+{
+    question:"The Gandhak Barrage is located at?",
+    options:["Valmikinagar","Hajipur","Patna","Gaya"],
+    answer:0
+},
+{
+    question:"Which constitutional body conducts elections to Panchayats?",
+    options:["Election Commission of India","State Election Commission","UPSC","Finance Commission"],
+    answer:1
+},
+{
+    question:"Which is the largest planet in the Solar System?",
+    options:["Earth","Saturn","Jupiter","Mars"],
+    answer:2
+},
+{
+    question:"Who founded the Khilji Dynasty?",
+    options:["Alauddin Khilji","Jalaluddin Khilji","Qutbuddin Aibak","Iltutmish"],
+    answer:1
+},
+{
+    question:"Which river is known for causing frequent floods in North Bihar?",
+    options:["Son","Kosi","Falgu","Punpun"],
+    answer:1
+},
+{
+    question:"The headquarters of NITI Aayog is located in?",
+    options:["Mumbai","New Delhi","Hyderabad","Kolkata"],
+    answer:1
+},
+{
+    question:"The National Anthem of India was written by?",
+    options:["Bankim Chandra Chattopadhyay","Rabindranath Tagore","Sarojini Naidu","Subramania Bharati"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known for the ancient city of Vaishali?",
+    options:["Muzaffarpur","Vaishali","Samastipur","Sitamarhi"],
+    answer:1
+},
+{
+    question:"Which Article provides protection against double jeopardy?",
+    options:["Article 19","Article 20","Article 21","Article 22"],
+    answer:1
+},
+{
+    question:"The currency of India is issued by?",
+    options:["Ministry of Finance","Reserve Bank of India","State Bank of India","NITI Aayog"],
+    answer:1
+},
+{
+    question:"Which district of Bihar shares a border with Nepal?",
+    options:["Sitamarhi","Nalanda","Patna","Gaya"],
+    answer:0
+},
+{
+    question:"Who is known as the Father of the Indian Constitution?",
+    options:["Mahatma Gandhi","Dr. B. R. Ambedkar","Jawaharlal Nehru","Sardar Vallabhbhai Patel"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is famous for Shahi Litchi?",
+    options:["Darbhanga","Muzaffarpur","Patna","Nalanda"],
+    answer:1
+},
+{
+    question:"The Constitution of India originally contained how many Articles?",
+    options:["395","448","356","280"],
+    answer:0
+},
+{
+    question:"Which river is the longest tributary of the Ganga?",
+    options:["Yamuna","Son","Kosi","Gandak"],
+    answer:0
+},
+{
+    question:"Who was the founder of the Pala Dynasty?",
+    options:["Dharmapala","Devapala","Gopala","Mahipala"],
+    answer:2
+},
+{
+    question:"Which city is known as the 'City of Ancient Universities' in Bihar?",
+    options:["Rajgir","Nalanda","Patna","Vaishali"],
+    answer:1
+},
+{
+    question:"The Finance Commission is constituted under which Article of the Constitution?",
+    options:["Article 280","Article 324","Article 315","Article 368"],
+    answer:0
+},
+{
+    question:"The headquarters of the Bihar State Tourism Development Corporation is located in?",
+    options:["Patna","Rajgir","Gaya","Bhagalpur"],
+    answer:0
+},
+{
+    question:"Which is the smallest district of Bihar by area?",
+    options:["Sheohar","Arwal","Sheikhpura","Lakhisarai"],
+    answer:0
+},
+{
+    question:"Which Fundamental Duty encourages the development of scientific temper?",
+    options:["Article 51A(a)","Article 51A(h)","Article 51A(e)","Article 51A(j)"],
+    answer:1
+},
+{
+    question:"The Indian National Calendar is based on which era?",
+    options:["Vikram Samvat","Shaka Era","Hijri Era","Gregorian Era"],
+    answer:1
+},
+{
+    question:"Who was the first woman Chief Minister of Bihar?",
+    options:["Rabri Devi","Meira Kumar","Sushma Swaraj","Sheila Dikshit"],
+    answer:0
+},
+{
+    question:"Which wildlife sanctuary is located in Bhagalpur district?",
+    options:["Valmiki Wildlife Sanctuary","Vikramshila Dolphin Sanctuary","Kaimur Wildlife Sanctuary","Gautam Buddha Wildlife Sanctuary"],
+    answer:1
+},
+{
+    question:"Which Indian state has the longest international border with Nepal?",
+    options:["Uttar Pradesh","Bihar","West Bengal","Sikkim"],
+    answer:1
+},
+{
+    question:"Which Article deals with the amendment of the Constitution?",
+    options:["356","324","368","370"],
+    answer:2
+},
+{
+    question:"Which is the official language of Bihar?",
+    options:["Hindi","Urdu","Maithili","Hindi and Urdu"],
+    answer:3
+},
+{
+    question:"Who wrote the book 'Discovery of India'?",
+    options:["Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose","Dr. Rajendra Prasad"],
+    answer:1
+},
+{
+    question:"The Kaimur Plateau is located in which part of Bihar?",
+    options:["Northern Bihar","Southern Bihar","Eastern Bihar","North-Eastern Bihar"],
+    answer:1
+},
+{
+    question:"Which planet is known as the Red Planet?",
+    options:["Venus","Mars","Jupiter","Mercury"],
+    answer:1
+},
+{
+    question:"The Bihar Panchayati Raj Act was enacted in which year?",
+    options:["1991","1993","2006","2011"],
+    answer:2
+},
+{
+    question:"Which Buddhist Council was held at Vaishali?",
+    options:["First","Second","Third","Fourth"],
+    answer:1
+},
+{
+    question:"The headquarters of the National Commission for Women is located in?",
+    options:["New Delhi","Mumbai","Kolkata","Chennai"],
+    answer:0
+},
+{
+    question:"Which river enters Bihar first from Nepal?",
+    options:["Kosi","Gandak","Bagmati","Kamla"],
+    answer:1
+},
+{
+    question:"Which Article abolishes titles except military and academic distinctions?",
+    options:["Article 17","Article 18","Article 19","Article 20"],
+    answer:1
+},
+{
+    question:"The first census in India was conducted in which year?",
+    options:["1872","1881","1891","1901"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is famous for Makhana production?",
+    options:["Madhubani","Darbhanga","Katihar","Begusarai"],
+    answer:1
+},
+{
+    question:"The headquarters of the Central Board of Direct Taxes is situated in?",
+    options:["New Delhi","Mumbai","Chennai","Kolkata"],
+    answer:0
+},
+{
+    question:"Which gas is essential for photosynthesis?",
+    options:["Oxygen","Carbon Dioxide","Nitrogen","Hydrogen"],
+    answer:1
+},
+{
+    question:"Who was the first Governor-General of Bengal?",
+    options:["Lord Curzon","Warren Hastings","Lord Cornwallis","William Bentinck"],
+    answer:1
+},
+{
+    question:"The Gandhak Barrage is located at?",
+    options:["Valmikinagar","Hajipur","Patna","Gaya"],
+    answer:0
+},
+{
+    question:"Which constitutional body conducts elections to Panchayats?",
+    options:["Election Commission of India","State Election Commission","UPSC","Finance Commission"],
+    answer:1
+},
+{
+    question:"Which is the largest planet in the Solar System?",
+    options:["Earth","Saturn","Jupiter","Mars"],
+    answer:2
+},
+{
+    question:"Who founded the Khilji Dynasty?",
+    options:["Alauddin Khilji","Jalaluddin Khilji","Qutbuddin Aibak","Iltutmish"],
+    answer:1
+},
+{
+    question:"Which river is known for causing frequent floods in North Bihar?",
+    options:["Son","Kosi","Falgu","Punpun"],
+    answer:1
+},
+{
+    question:"The headquarters of NITI Aayog is located in?",
+    options:["Mumbai","New Delhi","Hyderabad","Kolkata"],
+    answer:1
+},
+{
+    question:"The National Anthem of India was written by?",
+    options:["Bankim Chandra Chattopadhyay","Rabindranath Tagore","Sarojini Naidu","Subramania Bharati"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known for the ancient city of Vaishali?",
+    options:["Muzaffarpur","Vaishali","Samastipur","Sitamarhi"],
+    answer:1
+},
+{
+    question:"Which Article provides protection against double jeopardy?",
+    options:["Article 19","Article 20","Article 21","Article 22"],
+    answer:1
+},
+{
+    question:"The currency of India is issued by?",
+    options:["Ministry of Finance","Reserve Bank of India","State Bank of India","NITI Aayog"],
+    answer:1
+},
+{
+    question:"Which district of Bihar shares a border with Nepal?",
+    options:["Sitamarhi","Nalanda","Patna","Gaya"],
+    answer:0
+}
+next in this format
+{
+    question:"Which district of Bihar is known as the 'Rice Bowl of Bihar'?",
+    options:["Rohtas","Purnia","Nalanda","Buxar"],
+    answer:1
+},
+{
+    question:"Who was the first Indian to win the Nobel Prize?",
+    options:["C. V. Raman","Rabindranath Tagore","Mother Teresa","Amartya Sen"],
+    answer:1
+},
+{
+    question:"Which Article of the Constitution provides for the Comptroller and Auditor General (CAG) of India?",
+    options:["Article 148","Article 280","Article 324","Article 356"],
+    answer:0
+},
+{
+    question:"The famous Barabar Caves are located in which district of Bihar?",
+    options:["Nalanda","Jehanabad","Gaya","Aurangabad"],
+    answer:1
+},
+{
+    question:"Which river is also known as the Narayani in Nepal?",
+    options:["Bagmati","Kosi","Gandak","Kamla"],
+    answer:2
+},
+{
+    question:"Which Governor-General introduced the Permanent Settlement in Bengal?",
+    options:["Lord Wellesley","Lord Cornwallis","Warren Hastings","Lord Dalhousie"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is famous for the ruins of Nalanda University?",
+    options:["Nalanda","Patna","Gaya","Nawada"],
+    answer:0
+},
+{
+    question:"The term of the Lok Sabha is normally?",
+    options:["4 years","5 years","6 years","7 years"],
+    answer:1
+},
+{
+    question:"Which gas constitutes the largest percentage of Earth's atmosphere?",
+    options:["Oxygen","Nitrogen","Carbon Dioxide","Hydrogen"],
+    answer:1
+},
+{
+    question:"Who is regarded as the Father of the Green Revolution in India?",
+    options:["M. S. Swaminathan","Verghese Kurien","Norman Borlaug","C. Subramaniam"],
+    answer:0
+},
+{
+    question:"The ancient city of Pataliputra is the present-day city of?",
+    options:["Rajgir","Patna","Gaya","Muzaffarpur"],
+    answer:1
+},
+{
+    question:"Which Fundamental Right protects against exploitation?",
+    options:["Articles 14–18","Articles 19–22","Articles 23–24","Articles 25–28"],
+    answer:2
+},
+{
+    question:"Which river passes through Bhagalpur?",
+    options:["Kosi","Son","Ganga","Punpun"],
+    answer:2
+},
+{
+    question:"The Planning Commission of India was replaced in 2015 by?",
+    options:["Finance Commission","NITI Aayog","GST Council","National Development Council"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known for the historic Sher Shah Suri Tomb?",
+    options:["Rohtas","Sasaram","Buxar","Aurangabad"],
+    answer:1
+},
+{
+    question:"Which blood group is known as the universal donor?",
+    options:["A+","B+","AB+","O Negative"],
+    answer:3
+},
+{
+    question:"The Constitution of India was drafted by?",
+    options:["Constituent Assembly","Parliament","Supreme Court","Cabinet Mission"],
+    answer:0
+},
+{
+    question:"Which river joins the Ganga near Patna?",
+    options:["Son","Falgu","Punpun","Bagmati"],
+    answer:0
+},
+{
+    question:"The famous Mahavir Mandir is located in?",
+    options:["Muzaffarpur","Patna","Gaya","Rajgir"],
+    answer:1
+},
+{
+    question:"Which Article guarantees Freedom of Speech and Expression?",
+    options:["Article 14","Article 19(1)(a)","Article 21","Article 25"],
+    answer:1
+},
+{
+    question:"The capital of Bihar during the Mauryan period was?",
+    options:["Vaishali","Rajgir","Pataliputra","Nalanda"],
+    answer:2
+},
+{
+    question:"Which state is located to the south of Bihar?",
+    options:["Uttar Pradesh","West Bengal","Jharkhand","Sikkim"],
+    answer:2
+},
+{
+    question:"The headquarters of the Bihar Public Service Commission is situated in?",
+    options:["Patna","Gaya","Darbhanga","Bhagalpur"],
+    answer:0
+},
+{
+    question:"Which metal is liquid at room temperature?",
+    options:["Iron","Mercury","Copper","Silver"],
+    answer:1
+},
+{
+    question:"Who was the first President of the Constituent Assembly of India?",
+    options:["Dr. B. R. Ambedkar","Dr. Rajendra Prasad","Jawaharlal Nehru","Sachchidananda Sinha"],
+    answer:3
+},
+{
+    question:"Which district of Bihar is famous for Bodhi Tree?",
+    options:["Nalanda","Gaya","Patna","Bhojpur"],
+    answer:1
+},
+{
+    question:"Which constitutional amendment introduced the Panchayati Raj system?",
+    options:["42nd","44th","73rd","74th"],
+    answer:2
+},
+{
+    question:"The Indian Standard Time is based on which longitude?",
+    options:["82°30′ E","75° E","90° E","70° E"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is famous for Sujni embroidery?",
+    options:["Muzaffarpur","Nalanda","Bhagalpur","Madhubani"],
+    answer:0
+},
+{
+    question:"Which organ purifies blood in the human body?",
+    options:["Heart","Liver","Kidney","Lungs"],
+    answer:2
+},
+{
+    question:"The Battle of Buxar was fought in which year?",
+    options:["1757","1761","1764","1772"],
+    answer:2
+},
+{
+    question:"Who appoints the Chief Election Commissioner of India?",
+    options:["Prime Minister","President","Chief Justice of India","Parliament"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known for Tilkut sweets?",
+    options:["Patna","Gaya","Nalanda","Begusarai"],
+    answer:1
+},
+{
+    question:"Which planet has the maximum number of confirmed natural satellites?",
+    options:["Jupiter","Saturn","Mars","Uranus"],
+    answer:1
+},
+{
+    question:"Which Article provides for the Attorney General of India?",
+    options:["Article 76","Article 148","Article 280","Article 324"],
+    answer:0
+},
+{
+    question:"Which district of Bihar is known for the historic Kesaria Stupa?",
+    options:["East Champaran","West Champaran","Sitamarhi","Saran"],
+    answer:0
+},
+{
+    question:"The headquarters of the National Human Rights Commission is located in?",
+    options:["Mumbai","New Delhi","Chennai","Kolkata"],
+    answer:1
+},
+{
+    question:"Which Indian state has the largest forest area?",
+    options:["Madhya Pradesh","Arunachal Pradesh","Chhattisgarh","Maharashtra"],
+    answer:0
+},
+{
+    question:"Who composed the National Song 'Vande Mataram'?",
+    options:["Rabindranath Tagore","Bankim Chandra Chattopadhyay","Subhas Chandra Bose","Sarojini Naidu"],
+    answer:1
+},
+{
+    question:"Which district of Bihar is known for the Valmiki Tiger Reserve?",
+    options:["West Champaran","Gopalganj","Supaul","Kishanganj"],
+    answer:0
+}
 ];
 
 let currentUser=null;
@@ -628,7 +1861,7 @@ function setJSON(key,value){
 }
 
 function getSettings(){
-  return getJSON("settings",{duration:120,maxAttempts:3});
+  return getJSON("settings",{duration:120,maxAttempts:3,questionCount:150});
 }
 
 function getQuestions(){
@@ -682,6 +1915,7 @@ function adminLogin(){
   const settings=getSettings();
   document.getElementById("durationInput").value=settings.duration;
   document.getElementById("maxAttemptInput").value=settings.maxAttempts;
+  document.getElementById("questionCountInput").value=settings.questionCount || 150;
 
   updateQuestionStatus();
   renderAdminResults();
@@ -757,7 +1991,7 @@ function startExam(){
     return;
   }
 
-  questions=getQuestions();
+  questions=getRandomQuestionsForStudent(currentUser.id);
 
   if(!questions.length){
     showLock("No questions available.");
@@ -895,6 +2129,8 @@ function submitExam(reason){
   const total=questions.length;
   const percent=Math.round((correct/total)*100);
 
+  markQuestionsSeen(currentUser.id,questions);
+
   const result={
     name:currentUser.name,
     id:currentUser.id,
@@ -994,6 +2230,238 @@ document.addEventListener("keydown",e=>{
   }
 });
 
+
+function normalizeQuestion(q){
+  const options=q.options || [q.optionA,q.optionB,q.optionC,q.optionD];
+
+  return {
+    question:String(q.question || "").trim(),
+    options:options.map(o=>String(o || "").trim()).slice(0,4),
+    answer:Number(q.answer),
+    id:q.id || makeQuestionId(String(q.question || "").trim(),options)
+  };
+}
+
+function makeQuestionId(question,options){
+  const raw=(question+"|"+(options || []).join("|")).toLowerCase().replace(/\s+/g," ").trim();
+  let hash=0;
+
+  for(let i=0;i<raw.length;i++){
+    hash=((hash<<5)-hash)+raw.charCodeAt(i);
+    hash|=0;
+  }
+
+  return "q_"+Math.abs(hash);
+}
+
+function getRandomQuestionsForStudent(studentId){
+  const settings=getSettings();
+  const count=settings.questionCount || 150;
+  let bank=getQuestions().map(normalizeQuestion).filter(q=>
+    q.question && q.options.length===4 && q.options.every(Boolean) && q.answer>=0 && q.answer<=3
+  );
+
+  bank=removeDuplicateQuestions(bank);
+
+  if(!bank.length){
+    return [];
+  }
+
+  let seen=getJSON("seenQuestions_"+studentId,[]);
+  let fresh=bank.filter(q=>!seen.includes(q.id));
+
+  if(fresh.length<count){
+    seen=[];
+    localStorage.removeItem("seenQuestions_"+studentId);
+    fresh=bank;
+  }
+
+  return shuffleArray(fresh).slice(0,Math.min(count,fresh.length));
+}
+
+function removeDuplicateQuestions(bank){
+  const used={};
+  const unique=[];
+
+  bank.forEach(q=>{
+    if(!used[q.id]){
+      used[q.id]=true;
+      unique.push(q);
+    }
+  });
+
+  return unique;
+}
+
+function markQuestionsSeen(studentId,examQuestions){
+  const seen=getJSON("seenQuestions_"+studentId,[]);
+  examQuestions.forEach(q=>{
+    if(!seen.includes(q.id)){
+      seen.push(q.id);
+    }
+  });
+  setJSON("seenQuestions_"+studentId,seen);
+}
+
+function shuffleArray(arr){
+  const a=[...arr];
+
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+
+  return a;
+}
+
+function uploadBulkQuestions(){
+  const text=document.getElementById("bulkQuestions").value.trim();
+
+  if(!text){
+    alert("Paste questions first.");
+    return;
+  }
+
+  const parsed=parseBulkText(text);
+
+  if(!parsed.length){
+    alert("No valid questions found. Check the format.");
+    return;
+  }
+
+  const existing=getQuestions().map(normalizeQuestion);
+  const merged=removeDuplicateQuestions([...existing,...parsed]);
+
+  setJSON("questions",merged);
+  updateQuestionStatus();
+  document.getElementById("bulkQuestions").value="";
+
+  alert(parsed.length+" questions added. Total unique questions: "+merged.length);
+}
+
+function parseBulkText(text){
+  const blocks=text
+    .replace(/\r/g,"")
+    .split(/\n\s*\n|(?=\n?\s*\d+[\).]\s+)/)
+    .map(b=>b.trim())
+    .filter(Boolean);
+
+  const parsed=[];
+
+  blocks.forEach(block=>{
+    const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
+    if(lines.length<6)return;
+
+    let questionLines=[];
+    let options=[];
+    let answerLetter="";
+
+    lines.forEach(line=>{
+      const clean=line.replace(/^\d+[\).]\s*/,"").trim();
+
+      const optMatch=clean.match(/^\(?([A-Da-d])\)?[\).:\-]\s*(.+)$/);
+      const ansMatch=clean.match(/^(answer|ans|उत्तर|उत्तर\s*है)\s*[:\-]?\s*\(?([A-Da-d])\)?/i);
+
+      if(ansMatch){
+        answerLetter=ansMatch[2].toUpperCase();
+      }else if(optMatch && options.length<4){
+        options.push(optMatch[2].trim());
+      }else if(!answerLetter){
+        questionLines.push(clean);
+      }
+    });
+
+    const map={A:0,B:1,C:2,D:3};
+
+    if(questionLines.length && options.length===4 && answerLetter in map){
+      parsed.push(normalizeQuestion({
+        question:questionLines.join(" "),
+        options,
+        answer:map[answerLetter]
+      }));
+    }
+  });
+
+  return parsed;
+}
+
+function loadBulkSample(){
+  document.getElementById("bulkQuestions").value=
+`1. Which river is known as the Sorrow of Bihar?
+(A) Ganga
+(B) Kosi
+(C) Gandak
+(D) Son
+Answer: B
+
+2. Bihar Diwas is celebrated on which date?
+(A) 22 March
+(B) 26 January
+(C) 15 August
+(D) 2 October
+Answer: A
+
+3. Who was the first Chief Minister of Bihar?
+(A) Dr. Sri Krishna Singh
+(B) Anugrah Narayan Sinha
+(C) Jayaprakash Narayan
+(D) Karpoori Thakur
+Answer: A`;
+}
+
+function copyDirectCodeFormat(){
+  const code=
+`const questions=[
+  {
+    question:"Which river is known as the Sorrow of Bihar?",
+    options:["Ganga","Kosi","Gandak","Son"],
+    answer:1
+  },
+  {
+    question:"Bihar Diwas is celebrated on which date?",
+    options:["22 March","26 January","15 August","2 October"],
+    answer:0
+  }
+];`;
+
+  navigator.clipboard.writeText(code).then(()=>{
+    alert("Direct code format copied.");
+  }).catch(()=>{
+    document.getElementById("bulkQuestions").value=code;
+    alert("Copy blocked by browser. Format added in textarea.");
+  });
+}
+
+function downloadCodeFormat(){
+  const data=
+`const questions=[
+  {
+    question:"Which river is known as the Sorrow of Bihar?",
+    options:["Ganga","Kosi","Gandak","Son"],
+    answer:1
+  },
+  {
+    question:"Bihar Diwas is celebrated on which date?",
+    options:["22 March","26 January","15 August","2 October"],
+    answer:0
+  }
+];
+
+// answer index format:
+// A = 0, B = 1, C = 2, D = 3`;
+
+  const blob=new Blob([data],{type:"text/plain"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="bpsc-direct-question-code-format.txt";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
 function uploadCSV(){
   const file=document.getElementById("csvFile").files[0];
 
@@ -1018,7 +2486,7 @@ function uploadCSV(){
 
       if(!(ans in map))continue;
 
-      parsed.push({
+      parsed.push(normalizeQuestion({
         question:c[0].trim(),
         options:[
           c[1].trim(),
@@ -1027,7 +2495,7 @@ function uploadCSV(){
           c[4].trim()
         ],
         answer:map[ans]
-      });
+      }));
     }
 
     if(!parsed.length){
@@ -1100,19 +2568,22 @@ function savePDF(){
 function saveSettings(){
   const duration=Number(document.getElementById("durationInput").value);
   const maxAttempts=Number(document.getElementById("maxAttemptInput").value);
+  const questionCount=Number(document.getElementById("questionCountInput").value);
 
-  if(duration<1||maxAttempts<1){
+  if(duration<1||maxAttempts<1||questionCount<1){
     alert("Enter valid settings.");
     return;
   }
 
-  setJSON("settings",{duration,maxAttempts});
+  setJSON("settings",{duration,maxAttempts,questionCount});
   alert("Settings saved.");
 }
 
 function updateQuestionStatus(){
+  const settings=getSettings();
+  const total=getQuestions().length;
   document.getElementById("questionStatus").textContent=
-    "Questions: "+getQuestions().length;
+    "Question Bank: "+total+" | Questions Per Test: "+(settings.questionCount || 150);
 }
 
 function loadSample(){
