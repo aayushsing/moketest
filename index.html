@@ -334,6 +334,20 @@ th{
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.12);
 }
+.actionbtn{
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:12px;
+  margin:3px;
+}
+.saved-review-note{
+  margin-top:12px;
+  background:rgba(34,197,94,.12);
+  border:1px solid rgba(34,197,94,.25);
+  color:#bbf7d0;
+  padding:12px;
+  border-radius:14px;
+}
 
 @media(max-width:900px){
   .grid,.grid2,.examgrid,.stats,.topbar{
@@ -2271,6 +2285,7 @@ function submitExam(reason){
   markQuestionsSeen(currentUser.id,questions);
 
   const result={
+    resultId:"result_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
     name:currentUser.name,
     id:currentUser.id,
     total,
@@ -2300,7 +2315,9 @@ function submitExam(reason){
   document.getElementById("violationQ").textContent=violationCount;
   document.getElementById("scorePercent").textContent=percent+"%";
   document.getElementById("scoreCircle").style.setProperty("--angle",(percent/100*360)+"deg");
-  document.getElementById("answerReviewBox").innerHTML=renderAnswerReview(answerReview);
+  document.getElementById("answerReviewBox").innerHTML=
+    '<div class="saved-review-note">Answer review has been saved permanently in Result History until you delete it.</div>'+
+    renderAnswerReview(answerReview);
 }
 
 function addViolation(){
@@ -2743,16 +2760,18 @@ function clearQuestions(){
 function showHistory(){
   hideAll();
 
-  const results=getResults().filter(r=>currentUser&&r.id===currentUser.id);
-  document.getElementById("studentResultTable").innerHTML=resultTable(results);
+  const results=getResults()
+    .map((r,index)=>({...r,_index:index}))
+    .filter(r=>currentUser&&r.id===currentUser.id);
 
+  document.getElementById("studentResultTable").innerHTML=resultTable(results);
   document.getElementById("historyScreen").classList.remove("hidden");
 }
 
 function renderAdminResults(){
-  document.getElementById("adminResultTable").innerHTML=resultTable(getResults());
+  const results=getResults().map((r,index)=>({...r,_index:index}));
+  document.getElementById("adminResultTable").innerHTML=resultTable(results);
 }
-
 
 function renderAnswerReview(answerReview){
   if(!answerReview || !answerReview.length){
@@ -2778,14 +2797,74 @@ function renderAnswerReview(answerReview){
   return html;
 }
 
+function showSavedReview(resultIndex){
+  const results=getResults();
+  const result=results[resultIndex];
+
+  if(!result){
+    alert("Saved result not found.");
+    return;
+  }
+
+  if(currentRole!=="admin" && (!currentUser || result.id!==currentUser.id)){
+    alert("You can view only your own result review.");
+    return;
+  }
+
+  hideAll();
+  document.getElementById("resultScreen").classList.remove("hidden");
+
+  document.getElementById("submitReason").textContent="Saved answer review from "+result.date;
+  document.getElementById("totalQ").textContent=result.total || 0;
+  document.getElementById("correctQ").textContent=result.correct || 0;
+  document.getElementById("wrongQ").textContent=result.wrong || 0;
+  document.getElementById("skippedQ").textContent=result.unattempted || 0;
+  document.getElementById("scoreQ").textContent=(result.score || 0)+" / "+(result.total || 0);
+  document.getElementById("violationQ").textContent=result.violations || 0;
+  document.getElementById("scorePercent").textContent=(result.percent || 0)+"%";
+  document.getElementById("scoreCircle").style.setProperty("--angle",((result.percent || 0)/100*360)+"deg");
+  document.getElementById("answerReviewBox").innerHTML=
+    '<div class="saved-review-note">This answer review is saved permanently in Result History until deleted.</div>'+
+    renderAnswerReview(result.answerReview);
+}
+
+function deleteResult(resultIndex){
+  const results=getResults();
+  const result=results[resultIndex];
+
+  if(!result){
+    alert("Result not found.");
+    return;
+  }
+
+  if(currentRole!=="admin" && (!currentUser || result.id!==currentUser.id)){
+    alert("You can delete only your own saved result.");
+    return;
+  }
+
+  if(!confirm("Delete this saved result and answer review permanently?")){
+    return;
+  }
+
+  results.splice(resultIndex,1);
+  setJSON("results",results);
+
+  if(currentRole==="admin"){
+    renderAdminResults();
+  }else{
+    showHistory();
+  }
+}
+
 function resultTable(results){
   if(!results.length){
     return '<div class="notice">No results found.</div>';
   }
 
-  let html='<table><tr><th>Name</th><th>ID</th><th>Score</th><th>%</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Violations</th><th>Date</th></tr>';
+  let html='<table><tr><th>Name</th><th>ID</th><th>Score</th><th>%</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Violations</th><th>Date</th><th>Answer Review</th><th>Delete</th></tr>';
 
   results.forEach(r=>{
+    const originalIndex=typeof r._index==="number"?r._index:0;
     html+=`
       <tr>
         <td>${escapeHTML(r.name)}</td>
@@ -2797,10 +2876,13 @@ function resultTable(results){
         <td>${r.unattempted || 0}</td>
         <td>${r.violations}</td>
         <td>${r.date}</td>
+        <td><button class="secondary actionbtn" onclick="showSavedReview(${originalIndex})">View Review</button></td>
+        <td><button class="danger actionbtn" onclick="deleteResult(${originalIndex})">Delete</button></td>
       </tr>`;
   });
 
   html+='</table>';
+  html+='<div class="saved-review-note">Answer reviews are saved in this browser permanently until you delete them from here.</div>';
   return html;
 }
 
