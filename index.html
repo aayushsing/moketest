@@ -277,7 +277,7 @@ video{
 }
 .stats{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
   gap:14px;
   margin:22px 0;
 }
@@ -306,6 +306,35 @@ th,td{
 th{
   background:rgba(96,165,250,.18);
 }
+
+.reviewbox{
+  margin-top:28px;
+  text-align:left;
+}
+.review-title{
+  margin-bottom:12px;
+  color:#dbeafe;
+}
+.reviewtable td.correct{
+  color:#bbf7d0;
+  font-weight:800;
+}
+.reviewtable td.wrong{
+  color:#fecaca;
+  font-weight:800;
+}
+.reviewtable td.skipped{
+  color:#fde68a;
+  font-weight:800;
+}
+.answer-pill{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+}
+
 @media(max-width:900px){
   .grid,.grid2,.examgrid,.stats,.topbar{
     grid-template-columns:1fr;
@@ -399,8 +428,8 @@ button{transition:.22s ease}
     </div>
 
     <div class="card">
-      <h3>No Skip</h3>
-      <p>Answer required before next question.</p>
+      <h3>Skip Allowed</h3>
+      <p>Students can skip a question and move to the next one.</p>
     </div>
 
     <div class="card">
@@ -564,7 +593,7 @@ Answer: A"></textarea>
   <div class="topbar">
     <div>
       <h2>BPSC Mock Test</h2>
-      <p>Timed | No Skip | One Question</p>
+      <p>Timed | Skip Allowed | One Question</p>
     </div>
 
     <div class="attempts" id="attemptBox"></div>
@@ -583,11 +612,12 @@ Answer: A"></textarea>
       <div class="options" id="optionsBox"></div>
 
       <div id="warningBox" class="notice hidden">
-        Select one answer.
+        Select one answer or skip this question.
       </div>
 
       <div class="btnrow">
         <button id="nextBtn" onclick="nextQuestion()">Save & Next</button>
+        <button class="secondary" id="skipBtn" onclick="skipQuestion()">Skip</button>
         <button class="danger" onclick="manualSubmit()">Submit</button>
       </div>
     </div>
@@ -613,9 +643,12 @@ Answer: A"></textarea>
     <div class="stat"><b id="totalQ">0</b><span>Total</span></div>
     <div class="stat"><b id="correctQ">0</b><span>Correct</span></div>
     <div class="stat"><b id="wrongQ">0</b><span>Wrong</span></div>
+    <div class="stat"><b id="skippedQ">0</b><span>Skipped</span></div>
     <div class="stat"><b id="scoreQ">0</b><span>Score</span></div>
     <div class="stat"><b id="violationQ">0</b><span>Violations</span></div>
   </div>
+
+  <div id="answerReviewBox" class="reviewbox"></div>
 
   <div class="btnrow" style="justify-content:center">
     <button onclick="goHome()">Dashboard</button>
@@ -2130,18 +2163,43 @@ function loadQuestion(){
 }
 
 function nextQuestion(){
-  if(selectedAnswers[currentQuestion]===null){
-    document.getElementById("warningBox").classList.remove("hidden");
-    return;
-  }
+  document.getElementById("warningBox").classList.add("hidden");
 
   if(currentQuestion===questions.length-1){
-    submitExam("Test submitted.");
+    submitWithConfirmation("Test submitted.");
     return;
   }
 
   currentQuestion++;
   loadQuestion();
+}
+
+function skipQuestion(){
+  selectedAnswers[currentQuestion]=null;
+  document.getElementById("warningBox").classList.add("hidden");
+
+  if(currentQuestion===questions.length-1){
+    submitWithConfirmation("Test submitted after skipping the last question.");
+    return;
+  }
+
+  currentQuestion++;
+  loadQuestion();
+}
+
+function submitWithConfirmation(reason){
+  const attempted=selectedAnswers.filter(a=>a!==null).length;
+  const skipped=selectedAnswers.length-attempted;
+
+  const message=
+    "Are you sure you want to submit the test?\n\n"+
+    "Attempted: "+attempted+"\n"+
+    "Skipped: "+skipped+"\n"+
+    "Total Questions: "+selectedAnswers.length;
+
+  if(confirm(message)){
+    submitExam(reason);
+  }
 }
 
 function startTimer(){
@@ -2173,9 +2231,7 @@ function updateTimer(){
 }
 
 function manualSubmit(){
-  if(confirm("Submit test?")){
-    submitExam("Test submitted manually.");
-  }
+  submitWithConfirmation("Test submitted manually.");
 }
 
 function submitExam(reason){
@@ -2200,6 +2256,17 @@ function submitExam(reason){
 
   const total=questions.length;
   const percent=Math.round((correct/total)*100);
+  const answerReview=questions.map((q,i)=>{
+    const selectedIndex=selectedAnswers[i];
+    return {
+      question:q.question,
+      selectedIndex,
+      selectedAnswer:selectedIndex===null?"Skipped":q.options[selectedIndex],
+      correctIndex:q.answer,
+      correctAnswer:q.options[q.answer],
+      status:selectedIndex===null?"Skipped":(selectedIndex===q.answer?"Correct":"Wrong")
+    };
+  });
 
   markQuestionsSeen(currentUser.id,questions);
 
@@ -2213,7 +2280,8 @@ function submitExam(reason){
     score:correct,
     percent,
     violations:violationCount,
-    date:new Date().toLocaleString()
+    date:new Date().toLocaleString(),
+    answerReview
   };
 
   const results=getResults();
@@ -2227,10 +2295,12 @@ function submitExam(reason){
   document.getElementById("totalQ").textContent=total;
   document.getElementById("correctQ").textContent=correct;
   document.getElementById("wrongQ").textContent=wrong;
+  document.getElementById("skippedQ").textContent=unattempted;
   document.getElementById("scoreQ").textContent=correct+" / "+total;
   document.getElementById("violationQ").textContent=violationCount;
   document.getElementById("scorePercent").textContent=percent+"%";
   document.getElementById("scoreCircle").style.setProperty("--angle",(percent/100*360)+"deg");
+  document.getElementById("answerReviewBox").innerHTML=renderAnswerReview(answerReview);
 }
 
 function addViolation(){
@@ -2683,12 +2753,37 @@ function renderAdminResults(){
   document.getElementById("adminResultTable").innerHTML=resultTable(getResults());
 }
 
+
+function renderAnswerReview(answerReview){
+  if(!answerReview || !answerReview.length){
+    return '<div class="notice">No answer review available.</div>';
+  }
+
+  let html='<h2 class="review-title">Answer <span>Review</span></h2>';
+  html+='<table class="reviewtable"><tr><th>Q.No.</th><th>Question</th><th>Selected Answer</th><th>Right Answer</th><th>Status</th></tr>';
+
+  answerReview.forEach((item,index)=>{
+    const statusClass=item.status==="Correct"?"correct":(item.status==="Wrong"?"wrong":"skipped");
+    html+=`
+      <tr>
+        <td>${index+1}</td>
+        <td>${escapeHTML(item.question)}</td>
+        <td><span class="answer-pill">${escapeHTML(item.selectedAnswer)}</span></td>
+        <td><span class="answer-pill">${escapeHTML(item.correctAnswer)}</span></td>
+        <td class="${statusClass}">${item.status}</td>
+      </tr>`;
+  });
+
+  html+='</table>';
+  return html;
+}
+
 function resultTable(results){
   if(!results.length){
     return '<div class="notice">No results found.</div>';
   }
 
-  let html='<table><tr><th>Name</th><th>ID</th><th>Score</th><th>%</th><th>Correct</th><th>Wrong</th><th>Violations</th><th>Date</th></tr>';
+  let html='<table><tr><th>Name</th><th>ID</th><th>Score</th><th>%</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Violations</th><th>Date</th></tr>';
 
   results.forEach(r=>{
     html+=`
@@ -2699,6 +2794,7 @@ function resultTable(results){
         <td>${r.percent}%</td>
         <td>${r.correct}</td>
         <td>${r.wrong}</td>
+        <td>${r.unattempted || 0}</td>
         <td>${r.violations}</td>
         <td>${r.date}</td>
       </tr>`;
