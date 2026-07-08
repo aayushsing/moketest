@@ -315,6 +315,38 @@ th{
 @media print{
   body{display:none}
 }
+
+.lead{font-size:16px;max-width:720px;color:#dbeafe}
+.hero-login{text-align:center;margin-bottom:24px;animation:fadeDown .65s ease both}
+.login-card{max-width:560px;margin:0 auto;animation:riseUp .75s ease both}
+.fullbtn{width:100%;font-size:15px;letter-spacing:.2px}
+.glass-pop{position:relative;overflow:hidden}
+.glass-pop:before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:translateX(-100%);
+  animation:shine 4s infinite;
+  pointer-events:none;
+}
+.pulse{animation:pulseGlow 2s infinite}
+.admin-note{margin-bottom:16px;background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.28);color:#bae6fd}
+.container{animation:softZoom .45s ease both}
+input:focus,select:focus,textarea:focus{
+  border-color:#7dd3fc;
+  box-shadow:0 0 0 4px rgba(56,189,248,.12);
+}
+button{transition:.22s ease}
+.option{transition:.2s ease}
+.screen-title-mini{color:#93c5fd;font-weight:800}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+@keyframes riseUp{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes softZoom{from{opacity:.6;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+@keyframes shine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 rgba(56,189,248,0)}50%{box-shadow:0 0 26px rgba(56,189,248,.35)}}
+@media(max-width:520px){.container{padding:20px;border-radius:20px}.login-card{padding:18px}.lead{font-size:14px}}
+
 </style>
 </head>
 
@@ -323,35 +355,35 @@ th{
 <div class="container">
 
 <section id="loginScreen">
-  <div class="badge">BPSC Offline Mock Test</div>
-  <h1>BPSC <span>Mock Test</span></h1>
+  <div class="hero-login">
+    <div class="badge pulse">BPSC Offline Mock Test</div>
+    <h1>One Login for <span>Student & Admin</span></h1>
+    <p class="lead">Choose your login type and continue. Everything works offline and saves securely in this browser using localStorage.</p>
+  </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h3>Student Login</h3>
+  <div class="login-card card glass-pop">
+    <label>Login As</label>
+    <select id="loginRole" onchange="toggleLoginRole()">
+      <option value="student">Student</option>
+      <option value="admin">Admin</option>
+    </select>
 
+    <div id="studentFields">
       <label>Student Name</label>
-      <input id="studentName" placeholder="Enter name">
+      <input id="studentName" placeholder="Enter student name" autocomplete="name">
 
       <label>Mobile / Email</label>
-      <input id="studentId" placeholder="Enter mobile or email">
+      <input id="studentId" placeholder="Enter mobile or email" autocomplete="email">
+    </div>
 
-      <div class="btnrow">
-        <button onclick="studentLogin()">Login</button>
+    <div id="adminFields" class="hidden">
+      <div class="notice admin-note">
+        Admin access is password-free in this offline version. Click continue to open the admin panel.
       </div>
     </div>
 
-    <div class="card">
-      <h3>Admin Login</h3>
-
-      <label>Password</label>
-      <input id="adminPassword" type="password" placeholder="Admin password">
-
-      <div class="btnrow">
-        <button class="secondary" onclick="adminLogin()">Admin Panel</button>
-      </div>
-
-      <p>Demo Password: <b>admin123</b></p>
+    <div class="btnrow">
+      <button class="fullbtn" onclick="loginNow()">Continue</button>
     </div>
   </div>
 </section>
@@ -517,7 +549,7 @@ Answer: A"></textarea>
   </div>
 
   <div class="btnrow">
-    <button class="secondary" onclick="goLogin()">Back</button>
+    <button class="secondary" onclick="logout()">Logout</button>
   </div>
 </section>
 
@@ -1821,6 +1853,7 @@ const sampleQuestions=[
 ];
 
 let currentUser=null;
+let currentRole="student";
 let questions=[];
 let currentQuestion=0;
 let selectedAnswers=[];
@@ -1887,27 +1920,53 @@ function setAttempts(id,value){
   localStorage.setItem("attempt_"+id,value);
 }
 
+function toggleLoginRole(){
+  const role=document.getElementById("loginRole").value;
+  document.getElementById("studentFields").classList.toggle("hidden",role!=="student");
+  document.getElementById("adminFields").classList.toggle("hidden",role!=="admin");
+}
+
+function loginNow(){
+  const role=document.getElementById("loginRole").value;
+
+  if(role==="admin"){
+    adminLogin();
+    return;
+  }
+
+  studentLogin();
+}
+
 function studentLogin(){
   const name=document.getElementById("studentName").value.trim();
   const id=document.getElementById("studentId").value.trim();
 
   if(!name||!id){
-    alert("Enter name and mobile/email.");
+    alert("Enter student name and mobile/email.");
     return;
   }
 
+  currentRole="student";
   currentUser={name,id};
+  setJSON("currentSession",{role:"student",user:currentUser});
+  saveStudentProfile(currentUser);
   goHome();
 }
 
+function saveStudentProfile(user){
+  const students=getJSON("students",{});
+  students[user.id]={name:user.name,id:user.id,lastLogin:new Date().toLocaleString()};
+  setJSON("students",students);
+}
+
 function adminLogin(){
-  const pass=document.getElementById("adminPassword").value;
+  currentRole="admin";
+  currentUser=null;
+  setJSON("currentSession",{role:"admin",user:null});
+  goAdmin();
+}
 
-  if(pass!=="admin123"){
-    alert("Wrong password.");
-    return;
-  }
-
+function goAdmin(){
   hideAll();
   document.getElementById("adminScreen").classList.remove("hidden");
 
@@ -1924,12 +1983,24 @@ function adminLogin(){
 }
 
 function goLogin(){
+  stopCamera();
   hideAll();
   document.getElementById("loginScreen").classList.remove("hidden");
+  const roleSelect=document.getElementById("loginRole");
+  if(roleSelect){
+    roleSelect.value="student";
+    toggleLoginRole();
+  }
 }
 
 function goHome(){
   stopCamera();
+
+  if(currentRole==="admin"){
+    goAdmin();
+    return;
+  }
+
   hideAll();
 
   if(!currentUser){
@@ -1954,6 +2025,8 @@ function goHome(){
 
 function logout(){
   currentUser=null;
+  currentRole="student";
+  localStorage.removeItem("currentSession");
   goLogin();
 }
 
@@ -2721,6 +2794,18 @@ function escapeHTML(v){
 window.onload=()=>{
   if(!localStorage.getItem("questions")){
     setJSON("questions",sampleQuestions);
+  }
+
+  const session=getJSON("currentSession",null);
+  if(session&&session.role==="admin"){
+    currentRole="admin";
+    goAdmin();
+  }else if(session&&session.role==="student"&&session.user){
+    currentRole="student";
+    currentUser=session.user;
+    goHome();
+  }else{
+    goLogin();
   }
 };
 </script>
